@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JSON</title>
 <style>
 @font-face{
@@ -9,11 +11,19 @@
   src:url(./cascadia_code_pl-variable.2111.01.woff2) format("woff2");
   font-weight:200 700;
 }
-html{width:100%;height:100%;background:#444;color:#ccc;font:16pt sans-serif}
+html{width:100%;height:100%;background:#444;color:#ccc;font-family:monospace}
 body{margin:0;padding:0;min-height:100%}
+menu{position:absolute;right:0;display:flex;list-style:none;z-index:1;gap:1ch;margin:0 1ch;padding:0}
+menu>li{margin:0;padding:0}
+menu>li>a{display:inline-block;color:inherit;padding:1ch;opacity:.5}menu>li>a:active{opacity:1}
 </style>
 </head>
 <body>
+<menu>
+  <li><a href="javascript:indent()">indent</a></li>
+  <li><a href="javascript:minify()">minify</a></li>
+  <li><a href="javascript:save()">save</a></li>
+</menu>
 <script type="module">
 import installOn from './index.js';
 installOn(document.body);
