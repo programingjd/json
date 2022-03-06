@@ -1,0 +1,36 @@
+{
+  "name": "JSON",
+  "manifest_version": 3,
+  "version": "0.1",
+  "description": "JSON viewer/editor",
+  "icons": {
+    "128": "icon.svg"
+  },
+  "permissions": [
+    "activeTab",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "js": [ "foreground.js" ],
+      "matches": [ "*://*/*" ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "cascadia_code_pl-variable.2111.01.woff2",
+        "editor_bundle.220305.01.mjs"
+      ],
+      "matches": [ "*://*/*" ]
+    }
+  ],
+  "action": {}
+}
