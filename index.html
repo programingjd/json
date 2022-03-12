@@ -18,15 +18,67 @@ menu>li{margin:0;padding:0}
 menu>li>a{display:inline-block;color:inherit;padding:1ch;opacity:.5}menu>li>a:active{opacity:1}
 </style>
 </head>
-<body>
+<body class="loading">
 <menu>
   <li><a href="javascript:indent()">indent</a></li>
   <li><a href="javascript:minify()">minify</a></li>
   <li><a href="javascript:save()">save</a></li>
 </menu>
 <script type="module">
-import installOn from './index.js';
-installOn(document.body);
+const [view,{minifyWorker,indentWorker}]=await Promise.all([
+  (async()=>{
+    const {default: installOn}=await import('./index.mjs');
+    return installOn(document.body);
+  })(),
+  import('./workers.mjs')
+]);
+document.body.classList.remove('loading');
+window.indent=function indent(){
+  if(indentWorker){
+    console.log('indenting');
+    document.body.classList.add('indenting');
+    (async()=>{
+      try{
+        const promise=new Promise(resolve=>{
+          indentWorker.onmessage=(msg)=>{
+            indentWorker.onmessage=null;
+            resolve(new TextDecoder().decode(msg.data));
+          }
+        });
+        indentWorker.postMessage(new TextEncoder().encode(view.state.doc.toString()));
+        const indented=await promise;
+        console.log(indented);
+        console.log(view);
+        view.dispatch({changes:{from:0,to:view.state.doc.length,insert:indented}});
+      }finally{
+        document.body.classList.remove('indenting');
+      }
+    })();
+  }
+};
+window.minify=function minify(){
+  if(minifyWorker){
+    console.log('minifying');
+    document.body.classList.add('minifying');
+    (async()=>{
+      try{
+        const promise=new Promise(resolve=>{
+          minifyWorker.onmessage=(msg)=>{
+            minifyWorker.onmessage=null;
+            resolve(new TextDecoder().decode(msg.data));
+          }
+        });
+        minifyWorker.postMessage(new TextEncoder().encode(view.state.doc.toString()));
+        const minified=await promise;
+        console.log(minified);
+        console.log(view);
+        view.dispatch({changes:{from:0,to:view.state.doc.length,insert:minified}});
+      }finally{
+        document.body.classList.remove('minifying');
+      }
+    })();
+  }
+};
 </script>
 </body>
 </html>

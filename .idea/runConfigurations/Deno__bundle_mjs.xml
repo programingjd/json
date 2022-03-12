@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Deno: bundle.mjs" type="DenoConfigurationType" nameIsGenerated="true" inputPath="$PROJECT_DIR$/bundle.mjs" programParameters="run -A">
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

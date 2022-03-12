@@ -42,6 +42,7 @@ const extensions=[
   json(),
 ];
 const state=EditorState.create({doc,extensions});
+/** @return {EditorView} */
 const installOn=parent=>{
   return new EditorView({state,parent});
 };

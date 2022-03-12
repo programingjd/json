@@ -20,8 +20,9 @@ let httpPlugin={
 }
 
 await build({
-  entryPoints: ['index.js'],
-  outfile: 'lib.js',
+  entryPoints: ['index.mjs'],
+  outfile: 'viewer.mjs',
+  sourcemap: 'linked',
   bundle: true,
   minify: true,
   treeShaking: false,
