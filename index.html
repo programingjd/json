@@ -5,33 +5,147 @@
 <meta name="google" content="notranslate">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JSON</title>
+<link rel="stylesheet" href="font.css">
 <style>
-@font-face{
-  font-family:"ccpl";
-  src:url(./cascadia_code_pl-variable.2111.01.woff2) format("woff2");
-  font-weight:200 700;
+:root{
+--foreground:#a9b7c6;
+--background:#313335;
+--background-darker:#313335;
+--background-brighter:#414345;
+--background-brighter-brighter:#515355;
+--foreground-darker:#606366;
+--foreground-brighter:#f0f0f0;
+--active:#6897bb;
 }
-html{width:100%;height:100%;background:#444;color:#ccc;font-family:monospace}
-body{margin:0;padding:0;min-height:100%}
-menu{position:absolute;right:0;display:flex;list-style:none;z-index:1;gap:1ch;margin:0 1ch;padding:0}
+html{width:100%;height:100%;background:var(--background);color:var(--foreground);font-family:'ccpl',monospace}
+body{margin:0;padding:0;min-height:100%;display:flex;flex-direction:column}
+main{flex-grow:1;position:relative}
+main>div.cm-editor:first-child{position:absolute !important;top:0;right:0;bottom:0;left:0}
+menu *::selection{background:#214283;color:inherit}
+menu{flex:0;display:flex;justify-content:end;list-style:none;z-index:1;padding:0;margin:0}
+menu>li{display:flex}
+menu:first-child>li:first-child{background:var(--background-brighter)}
+menu>li input{appearance:none;border:none;background:none;color:inherit;font:inherit;outline:none}
+menu>li input{flex:1;font-size:.85em;padding:0}
+menu>li:first-child svg{fill:var(--foreground-darker)}
+menu>li:first-child a>svg:hover:not([aria-disabled="true"]){fill:var(--foreground)}
+menu>li:first-child>a:nth-child(3){margin-left:2px;position:relative}
+menu>li:first-child>a:nth-child(3):before{position:absolute;content:'';background:var(--foreground-darker);top:.25em;bottom:.25em;left:-2px;width:1px;opacity:.5}
 menu>li{margin:0;padding:0}
-menu>li>a{display:inline-block;color:inherit;padding:1ch;opacity:.5}menu>li>a:active{opacity:1}
+menu>li:empty{flex:1}
+menu a[onclick]:not([aria-disabled="true"]){cursor:pointer}
+menu a{text-decoration:none;display:block;color:inherit;height:2em}
+menu svg{margin:.25em;height:1em;width:auto;fill:var(--foreground);padding:.25em}
+menu a:not([aria-disabled="true"])>svg:hover{background:var(--background-brighter);border-radius:.25em}
+menu a[aria-disabled="true"]>svg{fill:var(--foreground-darker)}
+menu a:active>svg,menu a[aria-checked="true"]>svg{fill:var(--active)}
+menu input:not(:focus){text-overflow:ellipsis}
+menu input[type="search"]::-webkit-search-cancel-button{
+  content:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"%3E%3Cpath d="m7.99 8.71-3.14 3.14-.7-.7 3.14-3.14-3.14-3.15.7-.71L8 7.3l3.14-3.15.71.71L8.7 8l3.15 3.15-.71.7-3.15-3.14Z"/%3E%3C/svg%3E');
+  appearance:none;height:1em;width:1em;filter:invert() brightness(.5)}
+menu input[type="search"]::-webkit-search-cancel-button:hover{
+  content:url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16"%3E%3Cpath d="M8 14.25a6.25 6.25 0 1 0 0-12.5 6.25 6.25 0 0 0 0 12.5ZM4.54 5.46l.92-.92L8 7.08l2.54-2.54.92.92L8.92 8l2.54 2.54-.92.92L8 8.92l-2.54 2.54-.92-.92L7.08 8 4.54 5.46Z"/%3E%3C/svg%3E');
+}
+menu input[type="search"]{width:9ch;min-width:9ch;max-width:calc(100vw - 32em)}
+menu input[type="text"]{width:12ch;min-width:12ch;max-width:calc(100vw - 16em);text-align:right}
+@media (min-width:720px){
+  menu{gap:1ch;padding-inline-end:1ch}
+  menu>li:first-child>a:nth-child(3){margin-left:.5ch}
+  menu>li:first-child>a:nth-child(3):before{left:-.5ch}
+  menu>li:first-child{padding-right:.5ch}
+  menu input[type="search"]{min-width:9ch;max-width:calc(100vw - 36em)}
+  menu input[type="text"]{min-width:12ch;max-width:calc(100vw - 24em)}
+}
 </style>
 </head>
 <body class="loading">
 <menu>
-  <li><a href="javascript:indent()">indent</a></li>
-  <li><a href="javascript:minify()">minify</a></li>
-  <li><a href="javascript:save()">save</a></li>
+<li>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path fill-rule="evenodd" d="m11 10 3 3-1 1-3-3a5 5 0 1 1 1-1Zm-4 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/>
+</svg>
+<input type="search" aria-label="Search" placeholder="Search" onchange="this.title=this.value;this.style.width=`${3+this.value.length}ch`" onkeydown="this.style.width=`${Math.max(3+this.value.length+String.fromCharCode(event.charCode).trim().length,9)}ch`">
+<a onclick="toggle(this)" aria-label="Match case" title="Match case" role="checkbox" aria-checked="false"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="M8.8 11.8a4.6 4.6 0 0 1-3.3 1.4c-1.3 0-2.4-.5-3.2-1.4C1.4 10.8 1 9.6 1 8v-.2c0-1.5.4-2.7 1.3-3.7a4 4 0 0 1 3.3-1.4c1.2 0 2.3.4 3.1 1.2l-1 1.6c-.7-.6-1.4-.9-2-.9-.8 0-1.4.3-1.9.9a4 4 0 0 0-.6 2.3V8c0 1 .2 1.7.6 2.3.5.6 1 .8 1.8.8s1.5-.3 2.2-.9l1 1.5Zm6.8.3c-.3.4-.7.6-1 .8l-1.5.3c-1 0-1.9-.4-2.6-1.1a4 4 0 0 1-1-2.8V9c0-1.1.4-2 1-2.8.7-.7 1.6-1.1 2.6-1.1s1.9.3 2.5 1l-1 1.5c-.4-.5-1-.7-1.4-.7-.5 0-.9.2-1.2.6-.3.4-.4.9-.4 1.5v.2c0 .6.1 1.1.4 1.5.3.4.7.6 1.2.6s1-.2 1.5-.7l1 1.4Z"/>
+</svg></a>
+<a onclick="toggle(this)" aria-label="Words" title="Words" role="checkbox" aria-checked="false"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="m14.5 3-2.8 10H9.8L8 6.7 6.2 13H4.3L1.5 3h2.2l1.6 6.5L7.1 3H9l1.8 6.5L12.4 3h2.1Z"/>
+</svg></a>
+<a onclick="toggle(this)" aria-label="Words" title="Words" role="checkbox" aria-checked="false"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="m9.8 5.6 2.3-1.3.8 1.4L10.6 7 13 8.3l-.8 1.4-2.3-1.3V11H8.2V8.4L6 9.7l-.8-1.4L7.4 7 5.2 5.7 6 4.3l2.2 1.3V3h1.6v2.6ZM5 11v2H3v-2h2Z"/>
+</svg></a>
+</li>
+<li><a onclick="prevMatch()" aria-disabled="true" aria-label="Previous" title="Previous"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="m9.3 3.3-5 5L3 6.8 8 2l1.3 1.3ZM12.9 7l-1.2 1.2-5-5L8 2l5 5ZM9 14H7V3h2v11Z"/>
+</svg></a></li>
+<li><a onclick="nextMatch()" aria-disabled="true" aria-label="Next" title="Next"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="m9.3 12.7-5-5L3 9.2 8 14l1.3-1.3Zm3.6-3.6-1.2-1.3-5 5L8 14l5-5ZM9 2H7v11h2V2Z"/>
+</svg></a></li>
+<li><a onclick="selectMatch()" aria-disabled="true" aria-label="Add match to selection" title="Add match to selection"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="M15 9v6h-1V9h1Zm1 6v1h-1v-1h1Zm-2 0v1h-1v-1h1Zm2-7v1h-1V8h1Zm-2 0v1h-1V8h1Zm-3 1v6h-1V9h1Zm1 6v1h-1v-1h1Zm-2 0v1H9v-1h1Zm2-7v1h-1V8h1Zm-2 0v1H9V8h1Zm1-1H1V5h10v2ZM7 1v10H5V1h2Z"/>
+</svg></a></li>
+<li><a onclick="deselectMatch()" aria-disabled="true" aria-label="Remove match from selection" title="Remove match from selection"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="M15 9v6h-1V9h1Zm1 6v1h-1v-1h1Zm-2 0v1h-1v-1h1Zm2-7v1h-1V8h1Zm-2 0v1h-1V8h1Zm-3 1v6h-1V9h1Zm1 6v1h-1v-1h1Zm-2 0v1H9v-1h1Zm2-7v1h-1V8h1Zm-2 0v1H9V8h1Zm1-1H1V5h10v2Z"/>
+</svg></a></li>
+<li><a onclick="selectAllMatches()" aria-disabled="true" aria-label="Select all matches" title="Select all matches"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="m9 2 1 1-5.5 5.2-2.8-2.6 1-1 1.8 1.7L9 2ZM7 2 6 3H1v6h6V7.6l1-1V10H0V2h7.1Zm8 7v6h-1V9h1Zm1 6v1h-1v-1h1Zm-2 0v1h-1v-1h1Zm2-7v1h-1V8h1Zm-2 0v1h-1V8h1Zm-3 1v6h-1V9h1Zm1 6v1h-1v-1h1Zm-2 0v1H9v-1h1Zm2-7v1h-1V8h1Zm-2 0v1H9V8h1Z"/>
+</svg></a></li>
+<li><a onclick="toggle(this)" aria-label="Search in selection" title="Search in selection"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="M10 14h5v1h-5v-1Zm0-7h5v1h-5V7Zm2 1h1v6h-1V8ZM2 11h6v2H2v-2Zm0-4h6v2H2V7Zm0-4h11v2H2V3Z"/>
+</svg></a></li>
+<li></li>
+<li><a onclick="indent()" aria-label="Indent" title="Indent"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="M10 11v2H2v-2h8Zm4-3v2H6V8h8Zm0-3v2H6V5h8Zm-4-3v2H2V2h8Z"/>
+</svg></a></li>
+<li><a onclick="minify()" aria-label="Minify" title="Minify"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+<path d="M10 8v2H2V8h8Zm4-3v2H2V5h12Zm0-3v2H2V2h12Z"/>
+</svg></a></li>
+</menu>
+<main></main>
+<menu>
+<li></li>
+<li>
+<input type="text" aria-label="File name" placeholder="Filename" spellcheck="false" value="example.json" onchange="this.title=this.value;this.style.width=`${this.value.length}ch`" onkeydown="this.style.width=`${this.value.length+String.fromCharCode(event.charCode).trim().length}ch`">
+</li>
+<li><a onclick="save()" aria-label="Save" title="Save"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <path d="M11 14v-3H5v3H2V2h12v12h-3ZM4 4v4h8V4H4Zm2 8h4v2H6v-2Z"/>
+</svg></a></li>
+<li><a href="about.html" target="_blank" aria-label="About" title="About"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <path d="M7 14h2v-2H7v2ZM8 2a4 4 0 0 0-4 4h2c0-1.1.9-2 2-2a2 2 0 0 1 2 2c0 2-3 1.8-3 5h2c0-2.3 3-2.5 3-5a4 4 0 0 0-4-4Z"/>
+</svg></a></li>
 </menu>
 <script type="module">
+window.toggle=function(target){
+  target.setAttribute('aria-checked',`${target.getAttribute('aria-checked')!=='true'}`);
+};
 const [view,{minifyWorker,indentWorker}]=await Promise.all([
   (async()=>{
     const {default: installOn}=await import('./index.mjs');
-    return installOn(document.body);
+    return installOn(document.querySelector('main'));
   })(),
   import('./workers.mjs')
 ]);
+const doc=`
+{
+  "key": "value",
+  "array": [
+    1,
+    true,
+    null,
+    "double quoted",
+    'single quoted',
+    "trailing comma",
+  ],
+  numbers: {
+    "int": 42,
+    "float": 3.14,
+    "too_big_for_javascript": 1234567890123456789 // 0123456789
+  }
+}
+`.trim();
+setTimeout(()=>view.dispatch({changes:{from:0,to:view.state.doc.length,insert:doc}}),1);
+window.nextMatch=function(){};
+window.prevMatch=function(){};
 document.body.classList.remove('loading');
 window.indent=function indent(){
   if(indentWorker){
@@ -47,8 +161,6 @@ window.indent=function indent(){
         });
         indentWorker.postMessage(new TextEncoder().encode(view.state.doc.toString()));
         const indented=await promise;
-        console.log(indented);
-        console.log(view);
         view.dispatch({changes:{from:0,to:view.state.doc.length,insert:indented}});
       }finally{
         document.body.classList.remove('indenting');
@@ -70,8 +182,6 @@ window.minify=function minify(){
         });
         minifyWorker.postMessage(new TextEncoder().encode(view.state.doc.toString()));
         const minified=await promise;
-        console.log(minified);
-        console.log(view);
         view.dispatch({changes:{from:0,to:view.state.doc.length,insert:minified}});
       }finally{
         document.body.classList.remove('minifying');
@@ -79,6 +189,17 @@ window.minify=function minify(){
     })();
   }
 };
+window.save=function save(){
+  const filename=document.querySelector('main+menu input[type="text"]').value;
+  const blob=new Blob([view.state.doc.toString()],{type: 'application/json'});
+  const link=document.querySelector('main+menu a[onclick="save()"]');
+  link.download=filename;
+  link.href=URL.createObjectURL(blob);
+  setTimeout(()=>{
+    link.removeAttribute('href');
+    link.removeAttribute('download');
+  },1);
+}
 </script>
 </body>
 </html>

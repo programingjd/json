@@ -1,4 +1,4 @@
-const url=new URL('hjson.wasm',location.href).href;
+const url=new URL('json5.wasm',location.href).href;
 await (await fetch(url)).arrayBuffer();
 const src=name=>`(async()=>{
   const mod=await WebAssembly.compileStreaming(await fetch('${url}',{cache:'force-cache'}));
