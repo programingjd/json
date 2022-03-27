@@ -22,8 +22,8 @@ body{margin:0;padding:0;min-height:100%;display:flex;flex-direction:column}
 main{flex-grow:1;position:relative}
 main>div.cm-editor:first-child{position:absolute !important;top:0;right:0;bottom:0;left:0}
 menu *::selection{background:#214283;color:inherit}
-menu{flex:0;display:flex;justify-content:end;list-style:none;z-index:1;padding:0;margin:0}
-menu>li{display:flex}
+menu{flex:0;display:flex;justify-content:end;align-items:center;list-style:none;z-index:1;padding:0;margin:0}
+menu>li{display:flex;height:2em;overflow-y:hidden;align-items:center}
 menu:first-child>li:first-child{background:var(--background-brighter)}
 menu>li input{appearance:none;border:none;background:none;color:inherit;font:inherit;outline:none}
 menu>li input{flex:1;font-size:.85em;padding:0}
@@ -35,7 +35,7 @@ menu>li{margin:0;padding:0}
 menu>li:empty{flex:1}
 menu a[onclick]:not([aria-disabled="true"]){cursor:pointer}
 menu a{text-decoration:none;display:block;color:inherit;height:2em}
-menu svg{margin:.25em;height:1em;width:auto;fill:var(--foreground);padding:.25em}
+menu svg{box-sizing:border-box;margin:.25em;padding:.25em;height:1.5em;width:auto;fill:var(--foreground)}
 menu a:not([aria-disabled="true"])>svg:hover{background:var(--background-brighter);border-radius:.25em}
 menu a[aria-disabled="true"]>svg{fill:var(--foreground-darker)}
 menu a:active>svg,menu a[aria-checked="true"]>svg{fill:var(--active)}
