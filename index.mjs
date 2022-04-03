@@ -4,7 +4,7 @@ import {history} from 'https://jspm.dev/@codemirror/history';
 import {lineNumbers,highlightActiveLineGutter} from 'https://jspm.dev/@codemirror/gutter';
 import {foldGutter,foldKeymap,codeFolding} from 'https://jspm.dev/@codemirror/fold';
 import {commentKeymap} from 'https://jspm.dev/@codemirror/comment';
-import {search,searchKeymap} from 'https://jspm.dev/@codemirror/search';
+import {search,SearchQuery,setSearchQuery,getSearchQuery,findNext,findPrevious,selectMatches,openSearchPanel} from 'https://jspm.dev/@codemirror/search';
 import {lintGutter} from 'https://jspm.dev/@codemirror/lint';
 import {bracketMatching} from 'https://jspm.dev/@codemirror/matchbrackets';
 import {closeBrackets} from 'https://jspm.dev/@codemirror/closebrackets';
@@ -81,8 +81,70 @@ const baseTheme=EditorView.baseTheme(
     '.cm-activeLineGutter':{fontWeight:'bold'},
   }
 );
+const createPanel=view=>{
+  const searchField=document.querySelector('[data-label="search-field"]');
+  const caseField=document.querySelector('[data-label="search-match-case"]');
+  const reField=document.querySelector('[data-label="search-regex"]');
+  const nextButton=document.querySelector('[data-label="search-next"]');
+  const prevButton=document.querySelector('[data-label="search-prev"]');
+  const selectButton=document.querySelector('[data-label="search-select"]');
+  const deselectButton=document.querySelector('[data-label="search-deselect"]');
+  const selectAllButton=document.querySelector('[data-label="search-select-all"]');
+  let panelQuery=getSearchQuery(view.state);
+  const sync=q=>{
+    panelQuery=q;
+    searchField.value=q.search;
+    caseField.setAttribute('aria-checked',q.caseSensitive);
+    reField.setAttribute('aria-checked',q.regexp);
+    nextButton.setAttribute('aria-disabled',!q.search);
+    prevButton.setAttribute('aria-disabled',!q.search);
+    selectButton.setAttribute('aria-disabled',!q.search);
+    deselectButton.setAttribute('aria-disabled',!q.search);
+    selectAllButton.setAttribute('aria-disabled',!q.search);
+  };
+  const commit=()=>{
+    const query=new SearchQuery({
+      search: searchField.value,
+      caseSensitive: caseField.getAttribute('aria-checked')==='true',
+      regexp: reField.getAttribute('aria-checked')==='true'
+    });
+    if(!query.eq(panelQuery)){
+      panelQuery=query;
+      view.dispatch({effects:setSearchQuery.of(query)});
+      sync(query);
+    }
+  };
+  searchField.addEventListener('change',commit);
+  searchField.addEventListener('keyup',commit);
+  const checkedObserver=new MutationObserver(list=>{
+    for(const mut of list){
+      if(mut.attributeName==='aria-checked'){
+        commit();
+      }
+    }
+  });
+  checkedObserver.observe(caseField,{attributes:true});
+  checkedObserver.observe(reField,{attributes:true});
+  nextButton.addEventListener('click',_=>findNext(view),false);
+  prevButton.addEventListener('click',_=>findPrevious(view),false);
+  selectAllButton.addEventListener('click',_=>selectMatches(view),false)
+  searchField.form.addEventListener('submit',e=>{e.preventDefault();findNext(view)},false);
+
+  return {
+    dom: document.createElement('template'),
+    mount:()=>{},
+    update: (update)=>{
+      for (let tr of update.transactions) for (let effect of tr.effects){
+        if(effect.is(setSearchQuery)&& !effect.value.eq(panelQuery)){
+          sync(effect.value);
+        }
+      }
+    }
+  };
+};
+
 const extensions=[
-  keymap.of([...standardKeymap,...foldKeymap,...searchKeymap,...commentKeymap,indentWithTab]),
+  keymap.of([...standardKeymap,...foldKeymap,...commentKeymap,indentWithTab]),
   history(),
   darcula,
   baseTheme,
@@ -95,13 +157,16 @@ const extensions=[
   lintGutter(),
   bracketMatching(),
   bracketClosing.of(closeBrackets()),
-  search({top:true}),
+  search({createPanel}),
   indentOnInput(),
   lenientJson(),
 ];
 const state=EditorState.create({extensions});
+
 /** @return {EditorView} */
 const installOn=parent=>{
-  return new EditorView({state,parent});
+  const view=new EditorView({state,parent});
+  openSearchPanel(view);
+  return view;
 };
 export default installOn;

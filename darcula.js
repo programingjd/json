@@ -10,7 +10,7 @@ export const darculaTheme=EditorView.theme({
   '.cm-panels.cm-panels-top':{borderBottom:'2px solid black'},
   '.cm-panels.cm-panels-bottom':{borderTop:'2px solid black'},
   '.cm-searchMatch':{backgroundColor:'#155221',outline:'1px solid #00530d'},
-  '.cm-searchMatch.cm-searchMatch-selected':{backgroundColor:'#532b2e'},
+  '.cm-searchMatch.cm-searchMatch-selected':{backgroundColor:'#214283',outline:'1px solid #bbbbbb'},
   '.cm-activeLine':{backgroundColor:'#323232'},
   '.cm-selectionMatch':{backgroundColor:'#214283'},
   '&.cm-focused .cm-matchingBracket, &.cm-focused .cm-nonmatchingBracket':{backgroundColor:'#803b514d',outline:'1px solid #80ffef28'},
