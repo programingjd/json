@@ -122,7 +122,7 @@ window.toggle=function(target){
 };
 const [view,{minifyWorker,indentWorker}]=await Promise.all([
   (async()=>{
-    const {default: installOn}=await import('./index.mjs');
+    const {default: installOn}=await import('./viewer.mjs');//'./index.mjs');
     return installOn(document.querySelector('main'));
   })(),
   import('./workers.mjs')

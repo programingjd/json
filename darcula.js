@@ -1,5 +1,7 @@
 import {EditorView} from 'https://jspm.dev/@codemirror/view';
-import {HighlightStyle,tags as t} from 'https://jspm.dev/@codemirror/highlight';
+//import {Extension} from 'https://jspm.dev/@codemirror/state';
+import {HighlightStyle,syntaxHighlighting} from 'https://jspm.dev/@codemirror/language';
+import {tags as t} from 'https://jspm.dev/@lezer/highlight';
 
 export const darculaTheme=EditorView.theme({
   '&':{color:'#a9b7c6',backgroundColor:'#2b2b2b'},
@@ -102,4 +104,4 @@ export const darculaHighlightStyle = HighlightStyle.define([
 
 /// Extension to enable the One Dark theme (both the editor theme and
 /// the highlight style).
-export const darcula=[darculaTheme, darculaHighlightStyle];
+export const darcula=[darculaTheme, syntaxHighlighting(darculaHighlightStyle)];
