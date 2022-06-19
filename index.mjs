@@ -72,7 +72,9 @@ const lineWrapping=new Compartment();
 const bracketClosing=new Compartment();
 const baseTheme=EditorView.baseTheme(
   {
-    '.cm-content, .cm-gutter':{minHeight:'100%',font:'1em ccpl,serif',fontDisplay:'block'},
+    '.cm-content, .cm-gutter':{
+      minHeight:'100%',font:'1em ccpl,serif',fontVariantLigatures:'none',fontDisplay:'block'
+    },
     '.cm-scroller':{overflow:'auto'},
     '.cm-activeLineGutter':{fontWeight:'bold'},
   }
